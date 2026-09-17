@@ -49,7 +49,7 @@ model = joblib.load(MODEL_PATH)
 print("Loading market data...")
 
 data = yf.download(
-    ["QQQ", "^VIX", "TQQQ", "SQQQ", "SPY"],
+    ["QQQ", "^VIX"],
     start="2010-01-01",
     auto_adjust=True,
     progress=False,
