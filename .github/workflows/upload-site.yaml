@@ -1,0 +1,95 @@
+name: Update AUTO-LEVERAGE
+
+on:
+  push:
+    branches:
+      - main
+
+  schedule:
+    # 매일 한국시간 오전 8:00
+    - cron: "0 23 * * 0-4"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -------------------------
+      # 1. AUTO-LEVERAGE checkout
+      # -------------------------
+      - name: Checkout AUTO-LEVERAGE
+        uses: actions/checkout@v6
+
+      # -------------------------
+      # 2. Python environment
+      # -------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen
+
+      # -------------------------
+      # 3. Run model
+      # -------------------------
+      - name: Run AUTO-LEVERAGE
+        run: |
+          uv run python run.py
+
+      # -------------------------
+      # 4. Generate visualization
+      # -------------------------
+      - name: Generate visualization
+        run: |
+          uv run python visualize_with_qld.py
+
+      # -------------------------
+      # 5. Checkout GitHub Pages repo
+      # -------------------------
+      - name: Checkout personal website
+        uses: actions/checkout@v6
+        with:
+          repository: smiilliin/smiilliin.github.io
+          token: ${{ secrets.PAGES_TOKEN }}
+          path: site
+
+      # -------------------------
+      # 6. Copy generated files
+      # -------------------------
+      - name: Update website
+        run: |
+          cp index.html site/
+          cp leverage.json site/
+          cp visual-qqq-qld-auto.png site/
+
+      # -------------------------
+      # 7. Commit and push
+      # -------------------------
+      - name: Commit and push
+        working-directory: site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add index.html
+          git add leverage.json
+          git add visual-qqq-qld-auto.png
+
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Update AUTO-LEVERAGE"
+          git push

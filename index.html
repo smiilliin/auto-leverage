@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AUTO-LEVERAGE</title>
+
+    <style>
+      :root {
+        --bg: #f3f0e9;
+        --paper: #faf8f3;
+        --ink: #24231f;
+        --muted: #77736a;
+        --line: #d8d3c8;
+        --soft: #ebe7de;
+        --accent: #68705f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+
+        font-family:
+          "Pretendard",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      .container {
+        width: min(1160px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 64px 0 80px;
+      }
+
+      header {
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--line);
+        margin-bottom: 28px;
+      }
+
+      .eyebrow {
+        margin-bottom: 12px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        font-weight: 600;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(42px, 7vw, 72px);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+      }
+
+      .subtitle {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .section {
+        margin-bottom: 28px;
+      }
+
+      .section-title {
+        margin: 0 0 14px;
+        /* font-family: Georgia, "Times New Roman", serif; */
+        font-size: 23px;
+        font-weight: 500;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric {
+        padding: 22px 20px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric:last-child {
+        border-right: none;
+      }
+
+      .metric-label {
+        margin-bottom: 9px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .metric-value {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 30px;
+        line-height: 1;
+        letter-spacing: -0.035em;
+      }
+
+      .metric.emphasis {
+        background: var(--paper);
+      }
+
+      .parameters {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .parameter {
+        padding: 18px 20px;
+        display: flex;
+        justify-content: space-between;
+        border-right: 1px solid var(--line);
+      }
+
+      .parameter:last-child {
+        border-right: none;
+      }
+
+      .parameter-label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .parameter-value {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 18px;
+      }
+
+      .chart-card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        /* padding: 12px; */
+      }
+
+      .chart-card img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .data-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      pre {
+        margin: 0;
+        padding: 20px;
+        overflow-x: auto;
+        background: #25241f;
+        color: #e8e3d8;
+        border-radius: 2px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      footer {
+        padding-top: 24px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+      }
+
+      @media (max-width: 800px) {
+        .metrics {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .metric:nth-child(2) {
+          border-right: none;
+        }
+
+        .metric:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--line);
+        }
+
+        .parameters {
+          grid-template-columns: 1fr;
+        }
+
+        .parameter {
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .parameter:last-child {
+          border-bottom: none;
+        }
+
+        .container {
+          padding-top: 40px;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .metric {
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .metric:last-child {
+          border-bottom: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="container">
+      <header>
+        <div class="eyebrow">동적 레버리지 모델</div>
+        <h1>AUTO-LEVERAGE</h1>
+        <p class="subtitle">
+          예측 변동성에 따라 레버리지를 조절하는 나스닥 전략
+        </p>
+      </header>
+
+      <section class="section">
+        <h2 class="section-title">현재 레버리지</h2>
+
+        <div class="metrics">
+          <div class="metric emphasis">
+            <div class="metric-label">EMA 레버리지</div>
+            <div class="metric-value" id="ema-leverage">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">현재 원시 레버리지</div>
+            <div class="metric-value" id="raw-leverage">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">예측 21일 변동성</div>
+            <div class="metric-value" id="predicted-vol">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">데이터 기준일</div>
+            <div class="metric-value" id="data-date">불러오는 중</div>
+          </div>
+        </div>
+
+        <div class="data-row">
+          <span class="dot"></span>
+          <span id="status">데이터를 불러오는 중입니다.</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">모델 설정</h2>
+
+        <div class="parameters">
+          <div class="parameter">
+            <span class="parameter-label">목표 변동성</span>
+            <span class="parameter-value" id="target-vol">-</span>
+          </div>
+
+          <div class="parameter">
+            <span class="parameter-label">알파 (α)</span>
+            <span class="parameter-value" id="alpha">-</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">백테스트</h2>
+
+        <div class="chart-card">
+          <img
+            src="visual-qqq-qld-auto.png"
+            alt="QQQ, QLD, AUTO 백테스트 비교"
+          />
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">원본 데이터</h2>
+        <pre id="json">불러오는 중</pre>
+      </section>
+
+      <footer>AUTO-LEVERAGE · 변동성 기반 동적 레버리지 모델</footer>
+    </main>
+
+    <script>
+      async function loadData() {
+        try {
+          const response = await fetch("leverage.json", {
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          const percent = (value) => `${(Number(value) * 100).toFixed(2)}%`;
+
+          const leverage = (value) => `${Number(value).toFixed(2)}x`;
+
+          document.getElementById("ema-leverage").textContent = leverage(
+            data.ema_leverage,
+          );
+
+          document.getElementById("raw-leverage").textContent = leverage(
+            data.raw_leverage,
+          );
+
+          document.getElementById("predicted-vol").textContent = percent(
+            data.predicted_21d_volatility,
+          );
+
+          document.getElementById("data-date").textContent = data.data_date;
+
+          document.getElementById("target-vol").textContent = percent(
+            data.target_volatility,
+          );
+
+          document.getElementById("alpha").textContent = Number(
+            data.alpha,
+          ).toFixed(2);
+
+          document.getElementById("json").textContent = JSON.stringify(
+            data,
+            null,
+            2,
+          );
+
+          document.getElementById("status").textContent =
+            "최신 데이터를 불러왔습니다.";
+        } catch (error) {
+          document.getElementById("status").textContent =
+            `데이터를 불러오지 못했습니다: ${error.message}`;
+
+          document.getElementById("json").textContent =
+            "데이터를 불러올 수 없습니다.";
+        }
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
