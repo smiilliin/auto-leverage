@@ -69,9 +69,9 @@ jobs:
       # -------------------------
       - name: Update website
         run: |
-          cp index.html site/
-          cp leverage.json site/
-          cp visual-qqq-qld-auto.png site/
+          cp index.html site/auto-leverage/
+          cp leverage.json site/auto-leverage/
+          cp visual-qqq-qld-auto.png site/auto-leverage/
 
       # -------------------------
       # 7. Commit and push
@@ -82,14 +82,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add index.html
-          git add leverage.json
-          git add visual-qqq-qld-auto.png
+          git add auto-leverage/index.html
+          git add auto-leverage/leverage.json
+          git add auto-leverage/visual-qqq-qld-auto.png
 
           if git diff --cached --quiet; then
             echo "No changes to publish."
             exit 0
           fi
 
-          git commit -m "Update AUTO-LEVERAGE"
+          git commit -m "update auto-leverage"
           git push
