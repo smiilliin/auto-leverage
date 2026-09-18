@@ -4,7 +4,6 @@ import numpy as np
 
 def make_features(data):
     qqq = data["Close"]["QQQ"]
-    spy = data["Close"]["SPY"]
 
     # =========================
     # 1. Trend
