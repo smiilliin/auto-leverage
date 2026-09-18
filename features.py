@@ -5,16 +5,18 @@ import numpy as np
 def make_features(data):
     qqq = data["Close"]["QQQ"]
 
+    qqq = qqq.dropna()
+
     # =========================
     # 1. Trend
     # =========================
 
     return_5 = qqq.pct_change(5)
-    return_21 = qqq.pct_change(21)
-    return_63 = qqq.pct_change(63)
+    # return_21 = qqq.pct_change(21)
+    # return_63 = qqq.pct_change(63)
 
     ma20_distance = qqq / qqq.rolling(20).mean() - 1
-    ma200_distance = qqq / qqq.rolling(200).mean() - 1
+    # ma200_distance = qqq / qqq.rolling(200).mean() - 1
 
     # =========================
     # 2. Volatility

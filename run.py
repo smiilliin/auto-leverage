@@ -1,3 +1,4 @@
+import json
 import joblib
 import numpy as np
 import pandas as pd
@@ -14,6 +15,7 @@ from strategy import make_strategy_returns
 
 MODEL_PATH = "volatility_model.pkl"
 BACKTEST_PATH = "backtest_results.csv"
+LEVERAGE_PATH = "leverage.json"
 
 TARGET_VOLATILITY = 0.25
 ALPHA = 1.0
@@ -36,7 +38,7 @@ FEATURES = [
 
 
 # ========================================
-# Load final model
+# Load model
 # ========================================
 
 model = joblib.load(MODEL_PATH)
@@ -57,15 +59,39 @@ data = yf.download(
 
 
 # ========================================
-# Build dataset
+# Build features
 # ========================================
 
 features = make_features(data)
+
+
+# ========================================
+# Current prediction
+# ========================================
+
+# target과 완전히 독립적으로 최신 feature를 사용
+latest_features = features[FEATURES].dropna()
+
+
+predicted_volatility = pd.Series(
+    model.predict(latest_features),
+    index=latest_features.index,
+)
+
+
+# ========================================
+# Build target for backtest
+# ========================================
 
 target = make_target(
     data,
     horizon=21,
 )
+
+
+# ========================================
+# Build backtest dataset
+# ========================================
 
 dataset = pd.concat(
     [features, target],
@@ -74,7 +100,6 @@ dataset = pd.concat(
 
 
 X = dataset[FEATURES]
-
 y = dataset["future_volatility"]
 
 
@@ -111,28 +136,9 @@ results = make_strategy_returns(
 # Save backtest
 # ========================================
 
-results.to_csv(
-    BACKTEST_PATH,
-)
+results.to_csv(BACKTEST_PATH)
 
 print(f"Backtest saved to: {BACKTEST_PATH}")
-
-
-# ========================================
-# Current prediction
-# ========================================
-
-print()
-print("Calculating current leverage...")
-
-
-latest_features = features[FEATURES].dropna()
-
-
-predicted_volatility = pd.Series(
-    model.predict(latest_features),
-    index=latest_features.index,
-)
 
 
 # ========================================
@@ -172,37 +178,8 @@ latest_smooth_leverage = smooth_leverage.iloc[-1]
 
 
 # ========================================
-# Output
+# Save leverage
 # ========================================
-
-# print()
-# print("=" * 55)
-# print("                 AUTO-LEVERAGE")
-# print("=" * 55)
-
-# print()
-
-# print(f"Data date                : " f"{latest_date.date()}")
-
-# print(f"Predicted 21D Volatility : " f"{latest_predicted_volatility:.2%}")
-
-# print(f"Target Volatility        : " f"{TARGET_VOLATILITY:.2%}")
-
-# print(f"Alpha                    : " f"{ALPHA:.2f}")
-
-# print()
-
-# print(f"Raw Leverage             : " f"{latest_raw_leverage:.2f}x")
-
-# print(f"EMA {EMA_SPAN} Leverage          : " f"{latest_smooth_leverage:.2f}x")
-
-# print()
-
-# print(f"Backtest data            : " f"{BACKTEST_PATH}")
-
-# print("=" * 55)
-
-import json
 
 output = {
     "data_date": latest_date.date().isoformat(),
@@ -213,7 +190,24 @@ output = {
     "ema_leverage": float(latest_smooth_leverage),
 }
 
-with open("leverage.json", "w") as f:
-    json.dump(output, f, indent=2)
 
-print(json.dumps(output, indent=2))
+with open(
+    LEVERAGE_PATH,
+    "w",
+    encoding="utf-8",
+) as f:
+    json.dump(
+        output,
+        f,
+        indent=2,
+        ensure_ascii=False,
+    )
+
+
+print(
+    json.dumps(
+        output,
+        indent=2,
+        ensure_ascii=False,
+    )
+)
