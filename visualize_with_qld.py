@@ -129,7 +129,19 @@ ax2.plot(
 )
 ax2.set_xlabel("Date")
 ax2.set_ylabel("Leverage")
+ax2.yaxis.set_label_position("right")
+ax2.yaxis.tick_right()
+ax2.tick_params(axis="y", labelleft=False, left=False, labelright=True, right=True)
+ax2.spines["left"].set_visible(False)
 ax2.set_ylim(0, 2.1)
+ax2.axhline(
+    y=1.0,
+    color=MUTED,
+    linestyle="--",
+    linewidth=1.2,
+    alpha=0.9,
+    label="1x Reference",
+)
 ax2.legend()
 
 fig.tight_layout()
