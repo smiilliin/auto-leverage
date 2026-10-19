@@ -17,6 +17,7 @@ results = pd.read_csv(
 
 qqq_return = results["qqq_return"]
 auto_return = results["strategy_return"]
+leverage = results["leverage"]
 
 # =========================
 # Load QLD
@@ -75,56 +76,63 @@ INK = "#24231f"  # 글자
 MUTED = "#77736a"  # 보조 글자
 LINE = "#d8d3c8"  # 선 / 그리드
 
-plt.figure(
-    figsize=(14, 7),
+fig, (ax1, ax2) = plt.subplots(
+    2,
+    1,
+    figsize=(14, 10),
+    sharex=True,
     facecolor=BG,
 )
 
-ax = plt.gca()
-ax.set_facecolor(PAPER)
+for ax in (ax1, ax2):
+    ax.set_facecolor(PAPER)
+    ax.tick_params(colors=INK)
+    ax.xaxis.label.set_color(INK)
+    ax.yaxis.label.set_color(INK)
+    ax.title.set_color(INK)
 
+    for spine in ax.spines.values():
+        spine.set_color(LINE)
 
-ax = plt.gca()
-ax.set_facecolor(PAPER)
+    ax.grid(
+        True,
+        color=LINE,
+        alpha=0.7,
+    )
 
-ax.tick_params(colors=INK)
-ax.xaxis.label.set_color(INK)
-ax.yaxis.label.set_color(INK)
-ax.title.set_color(INK)
-
-for spine in ax.spines.values():
-    spine.set_color(LINE)
-
-ax.grid(
-    True,
-    color=LINE,
-    alpha=0.7,
-)
-
-plt.plot(
+ax1.plot(
     comparison.index,
     comparison["QQQ"],
     label="QQQ",
 )
 
-plt.plot(
+ax1.plot(
     comparison.index,
     comparison["QLD"],
     label="QLD",
 )
 
-plt.plot(
+ax1.plot(
     comparison.index,
     comparison["AUTO"],
     label="AUTO",
 )
 
-plt.title("QQQ vs QLD vs AUTO")
-plt.xlabel("Date")
-plt.ylabel("Growth of $1")
-plt.legend()
+ax1.set_title("QQQ vs QLD vs AUTO")
+ax1.set_ylabel("Growth of $1")
+ax1.legend()
 
-plt.tight_layout()
+ax2.plot(
+    leverage.index,
+    leverage,
+    label="AUTO Leverage",
+)
+ax2.set_xlabel("Date")
+ax2.set_ylabel("Leverage")
+ax2.set_ylim(0, 2.1)
+ax2.legend()
+
+fig.tight_layout()
 
 plt.savefig(
     "visual-qqq-qld-auto.png",
