@@ -6,8 +6,8 @@ on:
       - main
 
   schedule:
-    # 매일 한국시간 오전 8:00
-    - cron: "0 23 * * 0-4"
+    # 매주 월요일부터 금요일까지, 미국 동부 시간 기준 오전 9시 (UTC 기준 오후 2시)
+    - cron: "0 14 * * 1-5"
 
   workflow_dispatch:
 
