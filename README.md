@@ -2,6 +2,8 @@
 
 S&P 500의 변동성과 VIX 프리미엄을 이용해 레버리지 비중을 예측하는 프로젝트입니다.
 
+(https://smiilliin.github.io/auto-leverage/)
+
 ## 모델 구조
 
 - GARCH(1,1)로 S&P 500의 조건부 분산을 추정합니다.
