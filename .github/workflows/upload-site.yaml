@@ -6,13 +6,13 @@ on:
       - main
 
   schedule:
-    # 매일 한국시간 오전 8:00
-    - cron: "0 23 * * 0-4"
+    # 매주 월요일부터 금요일까지, 미국 동부 시간 기준 오전 9시 (UTC 기준 오후 2시)
+    - cron: "0 14 * * 1-5"
 
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update:
@@ -20,10 +20,21 @@ jobs:
 
     steps:
       # -------------------------
-      # 1. AUTO-LEVERAGE checkout
+      # 0. AUTO-LEVERAGE checkout
       # -------------------------
       - name: Checkout AUTO-LEVERAGE
         uses: actions/checkout@v6
+      
+      # -------------------------
+      # 1. Keep repository active
+      # -------------------------
+        
+      - name: Keep repository active
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "Keep workflow active"
+          git push
 
       # -------------------------
       # 2. Python environment
@@ -95,11 +106,4 @@ jobs:
           fi
 
           git commit -m "update auto-leverage"
-          git push
-
-      - name: Keep repository active
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          git commit --allow-empty -m "Keep workflow active"
           git push
