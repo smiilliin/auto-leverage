@@ -12,13 +12,23 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
+      # -------------------------
+      # 0. Keep repository active
+      # -------------------------
+        
+      - name: Keep repository active
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "Keep workflow active"
+          git push
       # -------------------------
       # 1. AUTO-LEVERAGE checkout
       # -------------------------
@@ -95,11 +105,4 @@ jobs:
           fi
 
           git commit -m "update auto-leverage"
-          git push
-
-      - name: Keep repository active
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          git commit --allow-empty -m "Keep workflow active"
           git push
