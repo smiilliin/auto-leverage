@@ -96,3 +96,10 @@ jobs:
 
           git commit -m "update auto-leverage"
           git push
+
+      - name: Keep repository active
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git commit --allow-empty -m "Keep workflow active"
+          git push
