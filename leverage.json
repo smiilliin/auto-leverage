@@ -1,8 +1,21 @@
 {
-  "data_date": "2026-09-17",
-  "predicted_21d_volatility": 0.13767877104989426,
-  "target_volatility": 0.25,
+  "model": "VIX premium direct leverage",
+  "data_date": "2026-11-20",
+  "predicted_leverage": 0.6148399832601672,
+  "target_volatility": 0.18,
+  "target_max_drawdown": -0.35,
   "alpha": 1.0,
-  "raw_leverage": 1.8158209729327186,
-  "ema_leverage": 1.6365932681263722
+  "inverse_vol_alpha": 4.1,
+  "ema_span": 7,
+  "raw_leverage": 0.6148399832601672,
+  "leverage": 0.7914726131324314,
+  "ema_leverage": 0.7914726131324314,
+  "performance": {
+    "annual_volatility": 0.1444583413680299,
+    "sharpe": 0.5589044864991294,
+    "cagr": 0.07279865161318555,
+    "max_drawdown": -0.411398908675096
+  },
+  "active_start": "2006-11-29",
+  "active_end": "2026-11-20"
 }

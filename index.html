@@ -157,6 +157,107 @@
         font-size: 12px;
       }
 
+      .recent-leverage {
+        margin-top: 14px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+      }
+
+      .recent-chart {
+        display: block;
+        width: 100%;
+        height: 180px;
+      }
+
+      .history-periods {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .history-period {
+        appearance: none;
+        border: 0;
+        border-right: 1px solid var(--line);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        padding: 12px 8px;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      .history-period:last-child {
+        border-right: none;
+      }
+
+      .history-period.active {
+        background: var(--soft);
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .history-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line);
+      }
+
+      .history-summary-item {
+        padding: 14px 16px;
+        border-right: 1px solid var(--line);
+      }
+
+      .history-summary-item:last-child {
+        border-right: none;
+      }
+
+      .history-summary-label {
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 6px;
+      }
+
+      .history-summary-value {
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .history-details {
+        border-top: 1px solid var(--line);
+        padding: 0 16px;
+      }
+
+      .history-details summary {
+        cursor: pointer;
+        padding: 14px 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .history-table-wrap {
+        max-height: 280px;
+        overflow: auto;
+      }
+
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+
+      .history-table th,
+      .history-table td {
+        padding: 9px 8px;
+        border-top: 1px solid var(--line);
+        text-align: right;
+      }
+
+      .history-table th:first-child,
+      .history-table td:first-child {
+        text-align: left;
+      }
+
       .dot {
         width: 7px;
         height: 7px;
@@ -281,6 +382,23 @@
           padding: 16px;
           font-size: 11px;
         }
+
+        .history-summary {
+          grid-template-columns: 1fr;
+        }
+
+        .history-summary-item {
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .history-summary-item:last-child {
+          border-bottom: none;
+        }
+
+        .recent-chart {
+          height: 150px;
+        }
       }
 
       @media (max-width: 400px) {
@@ -306,7 +424,7 @@
         <div class="eyebrow">동적 레버리지 모델</div>
         <h1>AUTO-LEVERAGE</h1>
         <p class="subtitle">
-          예측 변동성에 따라 레버리지를 조절하는 나스닥 전략
+          VIX와 premium을 이용해 레버리지를 직접 예측하는 S&P 500 전략
         </p>
       </header>
 
@@ -325,8 +443,8 @@
           </div>
 
           <div class="metric">
-            <div class="metric-label">예측 21일 변동성</div>
-            <div class="metric-value" id="predicted-vol">불러오는 중</div>
+            <div class="metric-label">모델 예측 레버리지</div>
+            <div class="metric-value" id="predicted-leverage">불러오는 중</div>
           </div>
 
           <div class="metric">
@@ -338,6 +456,80 @@
         <div class="data-row">
           <span class="dot"></span>
           <span id="status">데이터를 불러오는 중입니다.</span>
+        </div>
+
+        <div class="recent-leverage">
+          <div class="history-periods" aria-label="레버리지 조회 기간">
+            <button class="history-period" type="button" data-period="14d">14일</button>
+            <button class="history-period" type="button" data-period="1m">1개월</button>
+            <button class="history-period active" type="button" data-period="3m">3개월</button>
+            <button class="history-period" type="button" data-period="1y">1년</button>
+            <button class="history-period" type="button" data-period="5y">5년</button>
+          </div>
+
+          <canvas
+            class="recent-chart"
+            id="recent-leverage-chart"
+            aria-label="최근 3개월 레버리지 추이"
+          ></canvas>
+
+          <div class="history-summary">
+            <div class="history-summary-item">
+              <div class="history-summary-label">최근 3개월 최고</div>
+              <div class="history-summary-value" id="history-max">-</div>
+            </div>
+            <div class="history-summary-item">
+              <div class="history-summary-label">최근 3개월 최저</div>
+              <div class="history-summary-value" id="history-min">-</div>
+            </div>
+            <div class="history-summary-item">
+              <div class="history-summary-label">거래일 수</div>
+              <div class="history-summary-value" id="history-count">-</div>
+            </div>
+          </div>
+
+          <details class="history-details">
+            <summary>일별 레버리지 값 보기</summary>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>날짜</th>
+                    <th>예측 레버리지</th>
+                    <th>원시 레버리지</th>
+                    <th>EMA 레버리지</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body"></tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title">백테스트 성과</h2>
+
+        <div class="metrics">
+          <div class="metric emphasis">
+            <div class="metric-label">연환산 수익률 (CAGR)</div>
+            <div class="metric-value" id="backtest-cagr">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">연환산 변동성</div>
+            <div class="metric-value" id="backtest-volatility">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">Sharpe</div>
+            <div class="metric-value" id="backtest-sharpe">불러오는 중</div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-label">최대 낙폭 (MDD)</div>
+            <div class="metric-value" id="backtest-mdd">불러오는 중</div>
+          </div>
         </div>
       </section>
 
@@ -351,8 +543,18 @@
           </div>
 
           <div class="parameter">
-            <span class="parameter-label">알파 (α)</span>
-            <span class="parameter-value" id="alpha">-</span>
+            <span class="parameter-label">Inverse-vol α</span>
+            <span class="parameter-value" id="inverse-vol-alpha">-</span>
+          </div>
+
+          <div class="parameter">
+            <span class="parameter-label">EMA 기간</span>
+            <span class="parameter-value" id="ema-span">-</span>
+          </div>
+
+          <div class="parameter">
+            <span class="parameter-label">목표 최대 낙폭</span>
+            <span class="parameter-value" id="target-mdd">-</span>
           </div>
         </div>
       </section>
@@ -362,8 +564,8 @@
 
         <div class="chart-card">
           <img
-            src="visual-qqq-qld-auto.png"
-            alt="QQQ, QLD, AUTO 백테스트 비교"
+            src="visual-sp500-garch-auto.png"
+            alt="SPY, SSO, DIRECT VIX PREMIUM AUTO 백테스트 비교"
           />
         </div>
       </section>
@@ -377,17 +579,214 @@
     </main>
 
     <script>
+      function drawLeverageHistory(history) {
+        const canvas = document.getElementById("recent-leverage-chart");
+        if (!canvas || !history.length) {
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+
+        const context = canvas.getContext("2d");
+        context.scale(dpr, dpr);
+
+        const width = rect.width;
+        const height = rect.height;
+        const padding = { top: 18, right: 18, bottom: 28, left: 42 };
+        const plotWidth = width - padding.left - padding.right;
+        const plotHeight = height - padding.top - padding.bottom;
+
+        const values = history.map((item) => Number(item.leverage));
+        const minimum = Math.min(...values);
+        const maximum = Math.max(...values);
+        const range = Math.max(maximum - minimum, 0.1);
+        const lower = Math.max(0, minimum - range * 0.15);
+        const upper = maximum + range * 0.15;
+        const yRange = upper - lower;
+
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = "#faf8f3";
+        context.fillRect(0, 0, width, height);
+        context.strokeStyle = "#d8d3c8";
+        context.fillStyle = "#77736a";
+        context.lineWidth = 1;
+        context.font = "11px -apple-system, BlinkMacSystemFont, sans-serif";
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+
+        for (let i = 0; i <= 4; i += 1) {
+          const y = padding.top + (plotHeight * i) / 4;
+          const value = upper - (yRange * i) / 4;
+          context.beginPath();
+          context.moveTo(padding.left, y);
+          context.lineTo(width - padding.right, y);
+          context.stroke();
+          context.fillText(`${value.toFixed(2)}x`, padding.left - 8, y);
+        }
+
+        const point = (item, index) => {
+          const x =
+            padding.left +
+            (history.length === 1 ? 0 : (plotWidth * index) / (history.length - 1));
+          const y =
+            padding.top +
+            ((upper - Number(item.leverage)) / yRange) * plotHeight;
+          return [x, y];
+        };
+
+        context.beginPath();
+        history.forEach((item, index) => {
+          const [x, y] = point(item, index);
+          if (index === 0) {
+            context.moveTo(x, y);
+          } else {
+            context.lineTo(x, y);
+          }
+        });
+        context.strokeStyle = "#68705f";
+        context.lineWidth = 2;
+        context.stroke();
+
+        const last = history[history.length - 1];
+        const [lastX, lastY] = point(last, history.length - 1);
+        context.beginPath();
+        context.arc(lastX, lastY, 4, 0, Math.PI * 2);
+        context.fillStyle = "#68705f";
+        context.fill();
+
+        context.fillStyle = "#77736a";
+        context.textAlign = "left";
+        context.textBaseline = "bottom";
+        const fractions =
+          width < 480
+            ? [0, 0.5, 1]
+            : [0, 0.25, 0.5, 0.75, 1];
+        const tickIndexes = fractions
+          .map((fraction) =>
+            Math.round((history.length - 1) * fraction),
+          )
+          .filter((value, index, values) => values.indexOf(value) === index);
+
+        tickIndexes.forEach((tickIndex, index) => {
+          const [x] = point(history[tickIndex], tickIndex);
+          context.textAlign =
+            index === 0
+              ? "left"
+              : index === tickIndexes.length - 1
+                ? "right"
+                : "center";
+          context.fillText(history[tickIndex].date, x, height - 6);
+        });
+      }
+
+      function renderLeverageHistory(history) {
+        if (!history.length) {
+          return;
+        }
+
+        const values = history.map((item) => Number(item.leverage));
+        document.getElementById("history-max").textContent =
+          `${Math.max(...values).toFixed(2)}x`;
+        document.getElementById("history-min").textContent =
+          `${Math.min(...values).toFixed(2)}x`;
+        document.getElementById("history-count").textContent =
+          `${history.length}일`;
+
+        const tableBody = document.getElementById("history-table-body");
+        tableBody.innerHTML = history
+          .slice()
+          .reverse()
+          .map(
+            (item) => `
+              <tr>
+                <td>${item.date}</td>
+                <td>${Number(item.predicted_leverage).toFixed(2)}x</td>
+                <td>${Number(item.raw_leverage).toFixed(2)}x</td>
+                <td>${Number(item.leverage).toFixed(2)}x</td>
+              </tr>
+            `,
+          )
+          .join("");
+
+        drawLeverageHistory(history);
+      }
+
+      let currentLeverageHistory = null;
+
+      function selectLeveragePeriod(period) {
+        if (!currentLeverageHistory) {
+          return;
+        }
+
+        document.querySelectorAll(".history-period").forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.period === period,
+          );
+        });
+
+        const tradingDays = {
+          "14d": 14,
+          "1m": 21,
+          "3m": 63,
+          "1y": 252,
+          "5y": 1260,
+        };
+        const history =
+          currentLeverageHistory.slice(
+            -tradingDays[period],
+          );
+        renderLeverageHistory(history);
+
+        const labels = {
+          "14d": "최근 14일",
+          "1m": "최근 1개월",
+          "3m": "최근 3개월",
+          "1y": "최근 1년",
+          "5y": "최근 5년",
+        };
+
+        document.querySelectorAll(".history-summary-label").forEach((label, index) => {
+          if (index === 0) label.textContent = `${labels[period]} 최고`;
+          if (index === 1) label.textContent = `${labels[period]} 최저`;
+        });
+      }
+
+      document.querySelectorAll(".history-period").forEach((button) => {
+        button.addEventListener("click", () => {
+          selectLeveragePeriod(button.dataset.period);
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        const active = document.querySelector(".history-period.active");
+        if (active) {
+          selectLeveragePeriod(active.dataset.period);
+        }
+      });
+
       async function loadData() {
         try {
-          const response = await fetch("leverage.json", {
-            cache: "no-store",
-          });
+          const [leverageResponse, historyResponse] = await Promise.all([
+            fetch("leverage.json", { cache: "no-store" }),
+            fetch("leverage-history.json", { cache: "no-store" }),
+          ]);
 
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+          if (!leverageResponse.ok) {
+            throw new Error(`HTTP ${leverageResponse.status}`);
           }
 
-          const data = await response.json();
+          if (!historyResponse.ok) {
+            throw new Error(`HTTP ${historyResponse.status}`);
+          }
+
+          const [data, historyData] = await Promise.all([
+            leverageResponse.json(),
+            historyResponse.json(),
+          ]);
 
           const percent = (value) => `${(Number(value) * 100).toFixed(2)}%`;
 
@@ -401,8 +800,8 @@
             data.raw_leverage,
           );
 
-          document.getElementById("predicted-vol").textContent = percent(
-            data.predicted_21d_volatility,
+          document.getElementById("predicted-leverage").textContent = leverage(
+            data.predicted_leverage,
           );
 
           document.getElementById("data-date").textContent = data.data_date;
@@ -411,9 +810,35 @@
             data.target_volatility,
           );
 
-          document.getElementById("alpha").textContent = Number(
-            data.alpha,
+          document.getElementById("inverse-vol-alpha").textContent = Number(
+            data.inverse_vol_alpha,
           ).toFixed(2);
+
+          document.getElementById("ema-span").textContent =
+            `${Number(data.ema_span).toFixed(0)}일`;
+
+          document.getElementById("target-mdd").textContent = percent(
+            data.target_max_drawdown,
+          );
+
+          document.getElementById("backtest-cagr").textContent = percent(
+            data.performance?.cagr,
+          );
+
+          document.getElementById("backtest-volatility").textContent = percent(
+            data.performance?.annual_volatility,
+          );
+
+          document.getElementById("backtest-sharpe").textContent = Number(
+            data.performance?.sharpe,
+          ).toFixed(2);
+
+          document.getElementById("backtest-mdd").textContent = percent(
+            data.performance?.max_drawdown,
+          );
+
+          currentLeverageHistory = historyData.history || [];
+          selectLeveragePeriod("3m");
 
           document.getElementById("json").textContent = JSON.stringify(
             data,

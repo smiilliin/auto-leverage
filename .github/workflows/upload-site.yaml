@@ -45,14 +45,14 @@ jobs:
       # -------------------------
       - name: Run AUTO-LEVERAGE
         run: |
-          uv run python run.py
+          uv run python garch_auto_leverage.py
 
       # -------------------------
       # 4. Generate visualization
       # -------------------------
       - name: Generate visualization
         run: |
-          uv run python visualize_with_qld.py
+          uv run python visualize_garch.py
 
       # -------------------------
       # 5. Checkout GitHub Pages repo
@@ -71,7 +71,9 @@ jobs:
         run: |
           cp index.html site/auto-leverage/
           cp leverage.json site/auto-leverage/
-          cp visual-qqq-qld-auto.png site/auto-leverage/
+          cp leverage-history.json site/auto-leverage/
+          cp visual-sp500-garch-auto.png site/auto-leverage/
+          cp visual-sp500-garch-auto.png site/auto-leverage/visual-qqq-qld-auto.png
 
       # -------------------------
       # 7. Commit and push
@@ -84,7 +86,8 @@ jobs:
 
           git add auto-leverage/index.html
           git add auto-leverage/leverage.json
-          git add auto-leverage/visual-qqq-qld-auto.png
+          git add auto-leverage/leverage-history.json
+          git add auto-leverage/visual-sp500-garch-auto.png
 
           if git diff --cached --quiet; then
             echo "No changes to publish."
