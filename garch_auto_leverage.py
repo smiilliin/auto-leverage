@@ -11,6 +11,7 @@ from garch_model import (
     make_direct_leverage_features,
     make_direct_leverage_results,
 )
+
 MODEL_PATH = "garch_regression_model.pkl"
 
 
@@ -145,12 +146,8 @@ def run():
         {
             "date": date.date().isoformat(),
             "leverage": float(value),
-            "raw_leverage": float(
-                results["leverage_raw"].get(date, value)
-            ),
-            "predicted_leverage": float(
-                results["predicted_leverage"].get(date, 0.0)
-            ),
+            "raw_leverage": float(results["leverage_raw"].get(date, value)),
+            "predicted_leverage": float(results["predicted_leverage"].get(date, 0.0)),
         }
         for date, value in results["leverage"].dropna().tail(1260).items()
     ]
@@ -161,7 +158,6 @@ def run():
         "predicted_leverage": float(latest_predicted_leverage),
         "target_volatility": float(model_artifact["target_volatility"]),
         "target_max_drawdown": float(model_artifact.get("target_max_drawdown", -0.35)),
-        "alpha": 1.0,
         "inverse_vol_alpha": float(model_artifact.get("inverse_vol_alpha", 1.0)),
         "ema_span": int(model_artifact["ema_span"]),
         "raw_leverage": float(latest_predicted_leverage),
